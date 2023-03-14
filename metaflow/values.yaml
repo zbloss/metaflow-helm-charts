@@ -2,6 +2,87 @@
 # This is a YAML-formatted file.
 # Declare variables to be passed into your templates.
 
+# Database block for configuring the Kubegress CRD
+db:
+
+  # The total number of replicas you want, the first 
+  # replica will be a primary and the rest will be 
+  # secondary.
+  replicas: 3
+
+  # Postgres-compatible image you want to deploy.
+  image: postgres:14.5
+
+  # Port to make the Databases available on.
+  port: 5432
+
+  # Size to make each database.
+  size: 50Mi
+
+  # Name of the StorageClass object you want to use.
+  storageClassName: standard
+
+  # Where to mount the persistent volumes
+  volumeMount: /var/lib/postgres/data
+
+  # If true the primary and replica pods will not attempt 
+  # to failover and fix themselves. 
+  failoverEnabled: true
+
+  # The name of a replica pod you would like to promote as
+  # the primary.
+  promotePodToPrimary: ""
+
+  # The name of a configMap you want to use to define
+  # defaults for your postgres databases. 
+  # See Kubegres Docs for information on how to implement
+  # custom init and backup scripts: 
+  # https://www.kubegres.io/doc/override-default-configs.html
+  customConfigMap: ""
+
+  backupEnabled: true
+  # Backup settings
+  backup:
+    # true if you want to enable backups to a persistent volume
+    # claim
+    enabled: true
+
+    # cron schedule to backup on.
+    schedule: "0 0 1 */1 *"
+
+    # false if you want to use an existing PVC, true if you want
+    # to create a new PVC now.
+    createPvc: true
+    
+    # set this if you are using an existing PVC. If createPvc is
+    # true then leave this blank.
+    backupPvcName: ""
+
+    # Where on the backup PVC you want to store the backup.
+    backupVolumeMount: "/var/lib/backup"
+
+  secrets:
+    # true if you want to create randomly generated secrets
+    createSecrets: true
+
+    # If you have database secrets already created for your
+    # primary and replica databases, set the below values.
+
+    # The secret name and key for the primary database.
+    customSuperUserSecretName: ""
+    customSuperUserSecretValue: ""
+
+    # The secret name and key for the replica database(s).
+    customReplicaUserSecretName: ""
+    customReplicaUserSecretValue: ""
+    
+  # Any custom environmentVariables you want injected into 
+  # your db containers.
+  environmentVariables:
+    - name: custom-env-var
+      value: env-var-value
+
+
 replicaCount: 1
 
 image:
@@ -10,7 +91,10 @@ image:
   # Overrides the image tag whose default is the chart appVersion.
   tag: ""
 
+# Secret that contains credentials needed to auth
+# into your private image registry.
 imagePullSecrets: []
+
 nameOverride: ""
 fullnameOverride: ""
 

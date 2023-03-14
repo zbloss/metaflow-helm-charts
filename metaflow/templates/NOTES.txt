@@ -1,4 +1,9 @@
-1. Get the application URL by running these commands:
+You have deployed the following release: {{ .Release.Name }}.
+To get further information, you can run the commands:
+  $ helm status {{ .Release.Name }}
+  $ helm get all {{ .Release.Name }}
+
+Get the application URL by running these commands:
 {{- if .Values.ingress.enabled }}
 {{- range $host := .Values.ingress.hosts }}
   {{- range .paths }}
