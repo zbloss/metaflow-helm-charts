@@ -1,0 +1,10 @@
+apiVersion: v2
+name: metaflow-service
+description: Helm Chart to deploy the Metaflow Metadata Service.
+type: application
+version: 0.0.1
+appVersion: "0.0.1"
+maintainers:
+- name: Zach Bloss
+  email: zacharybloss@gmail.com
+  

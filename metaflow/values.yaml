@@ -1,17 +1,14 @@
-# Default values for metaflow.
-# This is a YAML-formatted file.
-# Declare variables to be passed into your templates.
-
 # Database block for configuring the Kubegress CRD
-db:
-
+kubegres:
   # The total number of replicas you want, the first 
   # replica will be a primary and the rest will be 
   # secondary.
   replicas: 3
 
   # Postgres-compatible image you want to deploy.
-  image: postgres:14.5
+  image: 
+    repository: postgres
+    tag: "14.5"
 
   # Port to make the Databases available on.
   port: 5432
@@ -40,7 +37,6 @@ db:
   # https://www.kubegres.io/doc/override-default-configs.html
   customConfigMap: ""
 
-  backupEnabled: true
   # Backup settings
   backup:
     # true if you want to enable backups to a persistent volume
@@ -82,6 +78,7 @@ db:
     - name: custom-env-var
       value: env-var-value
 
+ui:
 
 replicaCount: 1
 

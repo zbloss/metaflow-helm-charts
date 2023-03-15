@@ -40,7 +40,6 @@ helm.sh/chart: {{ include "metaflow.chart" . }}
 app.kubernetes.io/version: {{ .Chart.AppVersion | quote }}
 {{- end }}
 app.kubernetes.io/managed-by: {{ .Release.Service }}
-app.kubernetes.io/last-updated: {{ .Release.Time | quote | default "1970-01-01T00:00:00.000" | quote }}
 app.kubernetes.io/revision: {{ .Release.Revision | quote }}
 {{- end }}
 

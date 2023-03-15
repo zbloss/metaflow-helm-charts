@@ -1,0 +1,2 @@
+kubegres:
+  replicas: 3

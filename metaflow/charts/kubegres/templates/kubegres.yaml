@@ -1,0 +1,53 @@
+apiVersion: kubegres.reactive-tech.io/v1
+kind: Kubegres
+metadata:
+  name: {{ .Release.Name }}-kubegres
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "metaflow.labels" . | nindent 4 }}
+  
+spec:
+  replicas: {{ .Values.replicas }}
+  image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+  port: {{ .Values.port }}
+
+  {{- if .Values.imagePullSecrets }}
+  imagePullSecrets:
+    {{- range $v := .Values.imagePullSecrets }}
+    - name: {{ $v.name }}
+    {{- end }}
+  {{- end }}
+  database:
+    size: {{ .Values.size }}
+    {{ if .Values.storageClassName }}storageClassName: {{ .Values.storageClassName }}{{- end }}
+    {{ if .Values.volumeMount }}volumeMount: {{ .Values.volumeMount }}{{- end }}
+  {{ if .Values.customConfigMap }}customConfig: {{ .Values.customConfigMap }}{{- end }}
+  failover:
+    isDisabled: {{ not .Values.failoverEnabled }}
+    {{ if .Values.promotePodToPrimary }}promotePod: {{ .Values.promotePodToPrimary }}{{- end}}
+    
+  {{- if .Values.backup.enabled }}
+  backup:
+    schedule: {{ .Values.backup.schedule }}
+    pvcName: {{ if .Values.backup.backupPvcName }}{{ .Values.backup.backupPvcName }}{{ else }}{{ $.Release.Name }}-kubegres-backup-pvc{{- end }}
+    volumeMount: {{ .Values.backup.backupVolumeMount }}
+  {{- end }}
+
+  env:
+    - name: POSTGRES_PASSWORD
+      valueFrom:
+        secretKeyRef:
+          name: {{ if .Values.secrets.customSuperUserSecretName }}{{ .Values.secrets.customSuperUserSecretName }}{{ else }}{{ $.Release.Name }}-secret{{- end }}
+          key: {{ if .Values.secrets.customSuperUserSecretValue }}{{ .Values.secrets.customSuperUserSecretValue }}{{ else }}superUserPassword{{- end }}
+    - name: POSTGRES_REPLICATION_PASSWORD
+      valueFrom:
+        secretKeyRef:
+          name: {{ if .Values.secrets.customReplicaUserSecretName }}{{ .Values.secrets.customReplicaUserSecretName }}{{ else }}{{ $.Release.Name }}-secret{{- end }}
+          key: {{ if .Values.secrets.customReplicaUserSecretValue }}{{ .Values.secrets.customReplicaUserSecretValue }}{{ else }}replicaUserPassword{{- end }}
+
+  {{- if .Values.environmentVariables }}
+  {{- range $v := .environmentVariables }}
+    - name: {{ $v.name }}
+      value: {{ $v.value | quote }}
+  {{- end }}
+  {{- end }}
