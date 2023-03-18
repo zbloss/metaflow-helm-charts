@@ -9,8 +9,6 @@ maintainers:
   email: zacharybloss@gmail.com
 dependencies:
   - name: kubegres
-    # repository: "charts/kubegres/"
     version: 0.0.1
-    # import-values:
-    #   - child: metaflow.labels
-    #     parent: metaflow.labels
+  - name: metaflow-service
+    version: 0.0.1

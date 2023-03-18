@@ -1,5 +1,15 @@
-# Declare variables to be passed into your templates.
+secrets:
+  secretName: myapp-secret
+  dbPasswordKey: superUserPassword
 
+metadatadb:
+  port: 5432
+  host: ""
+  user: "postgres"
+  name: "metaflow"
+  schema: ""
+
+# Declare variables to be passed into your templates.
 replicaCount: 1
 
 image:
@@ -26,7 +36,7 @@ podAnnotations: {}
 podSecurityContext: {}
   # fsGroup: 2000
 
-dbMigrations:
+databaseMigrations:
   # Set to true to run migrations on every container start
   runOnStart: true
   # Set to true to only run them if db is empty. This setting has no effect is
@@ -92,9 +102,3 @@ tolerations: []
 affinity: {}
 
 envFrom: []
-
-metadatadb:
-  port: 5432
-  password: ""
-  host: ""
-  user: ""

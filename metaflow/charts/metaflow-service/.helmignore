@@ -21,3 +21,4 @@
 .idea/
 *.tmproj
 .vscode/
+            {{- include "metaflow-service.metadatadbEnvVars" . | nindent 12 }}

@@ -78,7 +78,6 @@ kubegres:
     - name: custom-env-var
       value: env-var-value
 
-ui:
 
 replicaCount: 1
 

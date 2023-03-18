@@ -1,0 +1,6 @@
+dependencies:
+- name: kubegres
+  repository: ""
+  version: 0.0.1
+digest: sha256:8c9189a4d96e16e7872ecb57508c0635f0af9dc3cba7d6556698a14bceb2f5cd
+generated: "2023-03-18T11:35:37.123705-04:00"
