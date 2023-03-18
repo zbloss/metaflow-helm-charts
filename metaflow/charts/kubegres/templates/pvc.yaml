@@ -5,7 +5,10 @@ metadata:
   namespace: {{ .Release.Namespace }}
   labels:
     {{- include "metaflow.labels" . | nindent 4 }}
+  annotations:
+    {{- include "metaflow.annotations" . | nindent 4 }}
 spec:
+  persistentVolumeReclaimPolicy: Retain
   accessModes:
     - ReadWriteMany
   resources:

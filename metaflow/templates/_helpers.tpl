@@ -36,12 +36,26 @@ Common labels
 {{- define "metaflow.labels" -}}
 helm.sh/chart: {{ include "metaflow.chart" . }}
 {{ include "metaflow.selectorLabels" . }}
+{{- end }}
+
+
+{{/*
+Common Annotations
+*/}}
+
+{{- define "metaflow.annotations" -}}
+helm.sh/chart: {{ include "metaflow.chart" . }}
 {{- if .Chart.AppVersion }}
 app.kubernetes.io/version: {{ .Chart.AppVersion | quote }}
 {{- end }}
+{{- if .Release.Service }}
 app.kubernetes.io/managed-by: {{ .Release.Service }}
+{{- end }}
+{{- if .Release.Revision }}
 app.kubernetes.io/revision: {{ .Release.Revision | quote }}
 {{- end }}
+{{- end }}
+
 
 {{/*
 Selector labels
