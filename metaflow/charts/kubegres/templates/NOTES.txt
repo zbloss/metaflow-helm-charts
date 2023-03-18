@@ -1,0 +1,3 @@
+Debugging Kubegres chart
+
+{{ include "kubegres.secret.name" . }}

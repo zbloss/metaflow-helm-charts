@@ -80,12 +80,9 @@ secrets:
   # If you have database secrets already created for your
   # primary and replica databases, set the below values.
 
-  # The secret name and key for the primary database.
-  customSuperUserSecretName: ""
+  # The secret name and key for the primary and replica databases.
+  customSecretName: ""
   customSuperUserSecretValue: ""
-
-  # The secret name and key for the replica database(s).
-  customReplicaUserSecretName: ""
   customReplicaUserSecretValue: ""
   
 # Any custom environmentVariables you want injected into 

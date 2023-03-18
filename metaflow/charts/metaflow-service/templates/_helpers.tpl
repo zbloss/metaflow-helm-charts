@@ -93,7 +93,7 @@ Create the name of the service account to use
   value: {{ .Values.metadatadb.host | quote }}
 {{- else }}
 - name: MF_METADATA_DB_HOST
-  value: {{ .Release.Name }}-kubegress.{{ .Release.Namespace }}.svc.cluster.local
+  value: {{ .Release.Name }}-kubegres.{{ .Release.Namespace }}.svc.cluster.local
 {{- end }}
 {{- if .Values.metadatadb.schema }}
 - name: DB_SCHEMA_NAME

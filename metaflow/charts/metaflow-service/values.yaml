@@ -1,5 +1,5 @@
 secrets:
-  secretName: myapp-secret
+  secretName: kubegres-secret
   dbPasswordKey: superUserPassword
 
 metadatadb:

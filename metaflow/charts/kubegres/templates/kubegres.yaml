@@ -1,7 +1,7 @@
 apiVersion: kubegres.reactive-tech.io/v1
 kind: Kubegres
 metadata:
-  name: {{ .Release.Name }}-kubegres
+  name: {{ include "kubegres.fullname" . }}
   namespace: {{ .Release.Namespace }}
   labels:
     {{- include "metaflow.labels" . | nindent 4 }}
@@ -34,18 +34,18 @@ spec:
     pvcName: {{ if .Values.backup.backupPvcName }}{{ .Values.backup.backupPvcName }}{{ else }}{{ $.Release.Name }}-kubegres-backup-pvc{{- end }}
     volumeMount: {{ .Values.backup.backupVolumeMount }}
   {{- end }}
-
   env:
     - name: POSTGRES_PASSWORD
       valueFrom:
         secretKeyRef:
-          name: {{ if .Values.secrets.customSuperUserSecretName }}{{ .Values.secrets.customSuperUserSecretName }}{{ else }}{{ $.Release.Name }}-secret{{- end }}
-          key: {{ if .Values.secrets.customSuperUserSecretValue }}{{ .Values.secrets.customSuperUserSecretValue }}{{ else }}superUserPassword{{- end }}
+          name: {{ include "kubegres.secret.name" . }}
+          key: {{ include "kubegres.secret.primaryValue" . }}
+          
     - name: POSTGRES_REPLICATION_PASSWORD
       valueFrom:
         secretKeyRef:
-          name: {{ if .Values.secrets.customReplicaUserSecretName }}{{ .Values.secrets.customReplicaUserSecretName }}{{ else }}{{ $.Release.Name }}-secret{{- end }}
-          key: {{ if .Values.secrets.customReplicaUserSecretValue }}{{ .Values.secrets.customReplicaUserSecretValue }}{{ else }}replicaUserPassword{{- end }}
+          name: {{ include "kubegres.secret.name" . }}
+          key: {{ include "kubegres.secret.replicaValue" . }}
 
   {{- if .Values.environmentVariables }}
   {{- range $v := .environmentVariables }}

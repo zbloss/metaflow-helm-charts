@@ -5,6 +5,33 @@ Expand the name of the chart.
 {{- default .Chart.Name .Values.nameOverride | trunc 63 | trimSuffix "-" }}
 {{- end }}
 
+
+{{- define "kubegres.secret.name" -}}
+{{- $name := default .Chart.Name .Values.nameOverride }}
+{{- if .Values.secrets.customSecretName }}
+{{- .Values.secrets.customSecretName }}
+{{- else }}
+{{- printf "%s-%s" $name "secret" }}
+{{- end }}
+{{- end }}
+
+
+{{- define "kubegres.secret.primaryValue" -}}
+{{- if .Values.secrets.customSuperUserSecretValue }}
+{{- .Values.secrets.customSuperUserSecretValue }}
+{{- else }}
+{{- printf "%s" "superUserPassword"}}
+{{- end }}
+{{- end }}
+
+{{- define "kubegres.secret.replicaValue" -}}
+{{- if .Values.secrets.customReplicaUserSecretValue }}
+{{- .Values.secrets.customReplicaUserSecretValue }}
+{{- else }}
+{{- printf "%s" "replicaUserPassword"}}
+{{- end }}
+{{- end }}
+
 {{/*
 Create a default fully qualified app name.
 We truncate at 63 chars because some Kubernetes name fields are limited to this (by the DNS naming spec).

@@ -1,7 +1,7 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ .Release.Name }}-metaflow-service
+  name: {{ include "metaflow-service.fullname" . }}
   namespace: {{ .Release.Namespace }}
   labels:
     {{- include "metaflow.labels" . | nindent 4 }}
