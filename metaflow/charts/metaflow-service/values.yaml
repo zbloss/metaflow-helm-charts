@@ -6,17 +6,18 @@ metadatadb:
   port: 5432
   host: ""
   user: "postgres"
-  name: "metaflow"
+  name: "postgres"
   schema: ""
+  password: ""
 
 # Declare variables to be passed into your templates.
 replicaCount: 1
 
 image:
-  repository: public.ecr.aws/outerbounds/metaflow_metadata_service
+  repository: netflixoss/metaflow_metadata_service #public.ecr.aws/outerbounds/metaflow_metadata_service
   pullPolicy: IfNotPresent
   # Overrides the image tag whose default is the chart appVersion.
-  tag: ""
+  tag: "latest"
 
 imagePullSecrets: []
 nameOverride: ""

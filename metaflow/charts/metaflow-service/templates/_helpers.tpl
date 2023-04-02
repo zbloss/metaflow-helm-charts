@@ -82,10 +82,14 @@ Create the name of the service account to use
 - name: MF_METADATA_DB_PORT
   value: {{ .Values.metadatadb.port | quote }}
 - name: MF_METADATA_DB_PSWD
+{{- if .Values.metadatadb.password }}
+  value: {{ .Values.metadatadb.password | quote}}
+{{- else }}
   valueFrom:
     secretKeyRef:
       name: {{ .Values.secrets.secretName }}
       key: {{ .Values.secrets.dbPasswordKey }}
+{{- end }}
 - name: MF_METADATA_DB_USER
   value: {{ .Values.metadatadb.user | quote }}
 {{- if .Values.metadatadb.host }}

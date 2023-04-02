@@ -35,6 +35,10 @@ spec:
     volumeMount: {{ .Values.backup.backupVolumeMount }}
   {{- end }}
   env:
+    - name: POSTGRES_HOST_AUTH_METHOD
+      value: trust
+    - name: POSTGRES_USER
+      value: zbuser
     - name: POSTGRES_PASSWORD
       valueFrom:
         secretKeyRef:

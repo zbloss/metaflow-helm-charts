@@ -1,2 +1,20 @@
 kubegres:
   replicas: 2
+
+  secrets:
+    createSecrets: true
+    # customSecretName: "manual-secret"
+    # customSuperUserSecretValue: superUserPassword
+
+# metaflow-service:
+
+  # metadatadb:
+  #   # password: "cGFzc3dvcmQ="
+  #   host: "myapp-kubegres.default.svc.cluster.local"
+
+  # secrets:
+  #   secretName: manual-secret
+  #   dbPasswordKey: superUserPassword
+
+  # databaseMigrations:
+  #   runOnStart: false  

@@ -78,6 +78,18 @@ kubegres:
     - name: custom-env-var
       value: env-var-value
 
+metaflow-service:
+  secrets:
+    secretName: kubegres-secret
+    dbPasswordKey: superUserPassword
+
+  metadatadb:
+    host: "mypostgres.default.svc.cluster.local"
+    user: "postgres"
+    name: "postgres"
+
+  databaseMigrations:
+    onlyIfDbEmpty: true
 
 replicaCount: 1
 
