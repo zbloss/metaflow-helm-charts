@@ -7,8 +7,4 @@ appVersion: "0.0.1"
 maintainers:
 - name: Zach Bloss
   email: zacharybloss@gmail.com
-dependencies:
-  - name: kubegres
-    version: 0.0.1
-  - name: metaflow-service
-    version: 0.0.1
+  

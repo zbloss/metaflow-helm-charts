@@ -1,0 +1,43 @@
+apiVersion: kubegres.reactive-tech.io/v1
+kind: Kubegres
+metadata:
+  name: {{ include "kubegres.name" . }}
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "metaflow.labels" . | nindent 4 }}
+  annotations:
+    {{- include "metaflow.annotations" . | nindent 4 }}
+  
+spec:
+  replicas: {{ .Values.kubegres.replicas }}
+  image: "{{ .Values.kubegres.image.repository }}:{{ .Values.kubegres.image.tag }}"
+  port: {{ .Values.kubegres.port }}
+
+  {{- if .Values.kubegres.imagePullSecrets }}
+  imagePullSecrets:
+    {{- range $v := .Values.kubegres.imagePullSecrets }}
+    - name: {{ $v.name }}
+    {{- end }}
+  {{- end }}
+  database:
+    size: {{ .Values.kubegres.size }}
+    {{ if .Values.kubegres.storageClassName }}storageClassName: {{ .Values.kubegres.storageClassName }}{{- end }}
+    {{ if .Values.kubegres.volumeMount }}volumeMount: {{ .Values.kubegres.volumeMount }}{{- end }}
+  {{ if .Values.kubegres.customConfigMap }}customConfig: {{ .Values.kubegres.customConfigMap }}{{- end }}
+  failover:
+    isDisabled: {{ not .Values.kubegres.failoverEnabled }}
+    {{ if .Values.kubegres.promotePodToPrimary }}promotePod: {{ .Values.kubegres.promotePodToPrimary }}{{- end}}
+    
+  {{- if .Values.kubegres.backup.enabled }}
+  backup:
+    schedule: {{ .Values.kubegres.backup.schedule }}
+    volumeMount: {{ .Values.kubegres.backup.backupVolumeMount }}
+  {{- end }}
+  env:
+    {{- include "kubegress.dbEnvVars"  . | nindent 4 }}
+  {{- if .Values.kubegres.environmentVariables }}
+  {{- range $v := .environmentVariables }}
+    - name: {{ $v.name }}
+      value: {{ $v.value | quote }}
+  {{- end }}
+  {{- end }}

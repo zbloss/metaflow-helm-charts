@@ -6,6 +6,40 @@ Expand the name of the chart.
 {{- end }}
 
 {{/*
+Kubegres
+*/}}
+{{- define "kubegres.name" -}}
+{{- default .Chart.Name .Values.nameOverride | trunc 63 | trimSuffix "-" }}
+{{- end }}
+
+{{- define "kubegress.dbEnvVars" -}}
+- name: POSTGRES_PASSWORD
+{{- if .Values.kubegres.secrets.superUserPassword }}
+  value: {{ .Values.kubegres.secrets.superUserPassword | quote }}
+{{- else }}
+  valueFrom:
+    secretKeyRef:
+      name: {{ .Values.kubegres.secrets.secretName | quote }}
+      value: {{ default "superUserPassword" .Values.kubegres.secrets.customSuperUserSecretKey }}
+{{- end }}
+- name: POSTGRES_REPLICATION_PASSWORD
+{{- if .Values.kubegres.secrets.replicationUserPassword }}
+  value: {{ .Values.kubegres.secrets.replicationUserPassword | quote }}
+{{- else }}
+  valueFrom:
+    secretKeyRef:
+      name: {{ .Values.kubegres.secrets.secretName | quote }}
+      value: {{ default "replicationUserPassword" .Values.kubegres.secrets.customReplicationUserSecretKey }}
+{{- end }}
+{{- end }}
+
+
+
+
+
+
+
+{{/*
 Create a default fully qualified app name.
 We truncate at 63 chars because some Kubernetes name fields are limited to this (by the DNS naming spec).
 If release name contains chart name it will be used as a full name.
