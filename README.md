@@ -21,10 +21,10 @@ Once the goal of delivering a kubernetes-native Metaflow deployment is mature, w
 
 These Custom Resource Definitions should be installed prior to `helm install`-ing this chart. A link and description to what each CRD does can be found below.
 
-| Link     | Description |
-|----------|-------------|
+| Link                                 | Description                                                                  |
+| ------------------------------------ | ---------------------------------------------------------------------------- |
 | [Kubegres](https://www.kubegres.io/) | Kubernetes Operator that provides highly-available deployments of Postgresql |
-| | |
+|                                      |                                                                              |
 
 #### Kubegres
 
@@ -32,13 +32,13 @@ Kubegres provides a kubernetes operator that allows for highly-available and hig
 
 ```bash
 export KUBEGRES_VERSION=1.16
-kubectl apply -f https://raw.githubusercontent.com/reactive-tech/kubegres/v$(echo $KUBEGRES_VERSION)/kubegres.yaml
+kubectl apply -f https://raw.githubusercontent.com/reactive-tech/kubegres/v$KUBEGRES_VERSION/kubegres.yaml
 
 ```
 
 #### Secret
 
-Now that you have the Kubegres CRD installed, you will need a secret to hold the primary and replica database passwords. This will look something like this:
+Now you will need to provide passwords for both the Primary and Replica databases that will be deployed. You can do so either manually in the helm chart via `.Values.global.superUserPassword` & `.Values.global.replicationUserPassword`, or you can define a Kubernetes Secret and provide that secret name at `.Values.global.secretName`. I recommend creating the Kubernetes Secret object, this will look something like this:
 
 ```yaml
 apiVersion: v1
@@ -48,5 +48,12 @@ metadata:
 stringData:
   superUserPassword: "password123"
   replicationUserPassword: "password234"
+```
 
+Then inside your `values.yaml` file you will supply the name of the secret like so:
+
+```yaml
+global:
+  secrets:
+    secretName: my-cool-secret
 ```
