@@ -34,7 +34,7 @@ spec:
     volumeMount: {{ .Values.kubegres.backup.backupVolumeMount }}
   {{- end }}
   env:
-    {{- include "kubegress.dbEnvVars"  . | nindent 4 }}
+    {{- include "kubegres.dbEnvVars"  . | nindent 4 }}
   {{- if .Values.kubegres.environmentVariables }}
   {{- range $v := .environmentVariables }}
     - name: {{ $v.name }}

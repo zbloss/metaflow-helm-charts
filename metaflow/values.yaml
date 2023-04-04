@@ -1,5 +1,19 @@
-# Database block for configuring the Kubegress CRD
+global:
+  secrets:
+    secretName: kubegres-secret
+    superUserPassword:
+    replicationUserPassword:
+    customSuperUserSecretKey:
+    customReplicationUserSecretKey:
+
+  database:
+    defaultDatabaseName:
+    defaultDatabaseUser:
+
+# Database block for configuring the kubegres CRD
 kubegres:
+  name:
+
   # The total number of replicas you want, the first 
   # replica will be a primary and the rest will be 
   # secondary.
@@ -48,16 +62,6 @@ kubegres:
 
     # Where on the backup PVC you want to store the backup.
     backupVolumeMount: "/var/lib/backup"
-
-  secrets:
-    # If you have database secrets already created for your
-    # primary and replica databases, set the below values.
-
-    secretName: kubegres-secret
-    customSuperUserSecretKey: ""
-    customReplicationUserSecretKey: ""
-    superUserPassword: ""
-    replicationUserPassword: ""
     
   # Any custom environmentVariables you want injected into 
   # your db containers.
@@ -65,26 +69,65 @@ kubegres:
   #   - name: me
   #     value: you
 
-metaflow-service:
-  secrets:
-    secretName: kubegres-secret
-    dbPasswordKey: superUserPassword
-
+metaflowService:
   metadatadb:
-    host: "mypostgres.default.svc.cluster.local"
-    user: "postgres"
-    name: "postgres"
+    host:
+    user:
+    name:
+    password:
+    port: 5432
+    schema: 
 
   databaseMigrations:
     onlyIfDbEmpty: true
+    runOnStart: true
+
+  service:
+    type: ClusterIP
+    port: 8080
+    annotations: {}
+
+  serviceAccount:
+    create: true
+    name: 
+    annotations: 
+
+  replicaCount: 1
+
+  autoscaling:
+    enabled: false
+    minReplicas: 1
+    maxReplicas: 100
+    targetCPUUtilizationPercentage: 80
+    # targetMemoryUtilizationPercentage: 80
+
+  podAnnotations: {}
+  imagePullSecrets:
+  podSecurityContext: {}
+    # fsGroup: 2000
+
+  image:
+    repository: netflixoss/metaflow_metadata_service
+    pullPolicy: IfNotPresent
+    # Overrides the image tag whose default is the chart appVersion.
+    tag: "latest"
+
+  resources:
+  envFrom:
+  nodeSelector: {}
+  tolerations: []
+  affinity: {}
+  securityContext: {}
+    # capabilities:
+    #   drop:
+    #   - ALL
+    # readOnlyRootFilesystem: true
+    # runAsNonRoot: true
+    # runAsUser: 1000
 
 replicaCount: 1
 
-image:
-  repository: nginx
-  pullPolicy: IfNotPresent
-  # Overrides the image tag whose default is the chart appVersion.
-  tag: ""
+
 
 # Secret that contains credentials needed to auth
 # into your private image registry.
@@ -102,18 +145,6 @@ serviceAccount:
   # If not set and create is true, a name is generated using the fullname template
   name: ""
 
-podAnnotations: {}
-
-podSecurityContext: {}
-  # fsGroup: 2000
-
-securityContext: {}
-  # capabilities:
-  #   drop:
-  #   - ALL
-  # readOnlyRootFilesystem: true
-  # runAsNonRoot: true
-  # runAsUser: 1000
 
 service:
   type: ClusterIP
@@ -147,15 +178,5 @@ resources: {}
   #   cpu: 100m
   #   memory: 128Mi
 
-autoscaling:
-  enabled: false
-  minReplicas: 1
-  maxReplicas: 100
-  targetCPUUtilizationPercentage: 80
-  # targetMemoryUtilizationPercentage: 80
 
-nodeSelector: {}
 
-tolerations: []
-
-affinity: {}

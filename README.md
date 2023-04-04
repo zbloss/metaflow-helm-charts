@@ -28,15 +28,25 @@ These Custom Resource Definitions should be installed prior to `helm install`-in
 
 #### Kubegres
 
-Kubegress provides a kubernetes operator that allows for highly-available and highly-scalable PostgreSQL deployments on kubernetes. Often folks avoid putting databases on kubernetes because you need to manage things like backups, primary/secondary failover(s), etc. Reaching for AWS RDS is usually simpler, but Kubegress now provides a CRD `kind: Kubegres` that handles a lot of these problems out of the box.
+Kubegres provides a kubernetes operator that allows for highly-available and highly-scalable PostgreSQL deployments on kubernetes. Often folks avoid putting databases on kubernetes because you need to manage things like backups, primary/secondary failover(s), etc. Reaching for AWS RDS is usually simpler, but Kubegres now provides a CRD `kind: Kubegres` that handles a lot of these problems out of the box.
 
 ```bash
+export KUBEGRES_VERSION=1.16
+kubectl apply -f https://raw.githubusercontent.com/reactive-tech/kubegres/v$(echo $KUBEGRES_VERSION)/kubegres.yaml
 
-# Pending a PR Merge from the Kubegres Team: 
-# https://github.com/reactive-tech/kubegres/pull/153
-# export KUBEGRES_VERSION=1.16
-# kubectl apply -f https://raw.githubusercontent.com/reactive-tech/kubegres/v$(echo $KUBEGRES_VERSION)/kubegres.yaml
+```
 
-kubectl apply -f https://raw.githubusercontent.com/zbloss/kubegres/main/kubegres.yaml
+#### Secret
+
+Now that you have the Kubegres CRD installed, you will need a secret to hold the primary and replica database passwords. This will look something like this:
+
+```yaml
+apiVersion: v1
+kind: Secret
+metadata:
+  name: my-cool-secret
+stringData:
+  superUserPassword: "password123"
+  replicationUserPassword: "password234"
 
 ```

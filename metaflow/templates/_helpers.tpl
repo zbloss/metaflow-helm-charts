@@ -1,43 +1,54 @@
 {{/*
+Kubegres
+*/}}
+{{- define "kubegres.name" -}}
+{{- default .Chart.Name .Values.kubegres.name | trunc 63 | trimSuffix "-" }}
+{{- end }}
+
+{{- define "default.databaseName" -}}
+{{- default "postgres" .Values.global.database.defaultDatabaseName }}
+{{- end }}
+
+{{- define "default.databaseUser" -}}
+{{- default "postgres" .Values.global.database.defaultDatabaseUser }}
+{{- end }}
+
+{{- define "kubegres.host" -}}
+{{- printf "%s.%s.svc.cluster.local" (include "kubegres.name" .) .Release.Namespace }}
+{{- end }}
+
+{{- define "kubegres.dbEnvVars" -}}
+- name: POSTGRES_PASSWORD
+{{- if .Values.global.secrets.superUserPassword }}
+  value: {{ .Values.global.secrets.superUserPassword | quote }}
+{{- else }}
+  valueFrom:
+    secretKeyRef:
+      name: {{ .Values.global.secrets.secretName | quote }}
+      value: {{ default "superUserPassword" .Values.global.secrets.customSuperUserSecretKey }}
+{{- end }}
+- name: POSTGRES_REPLICATION_PASSWORD
+{{- if .Values.global.secrets.replicationUserPassword }}
+  value: {{ .Values.global.secrets.replicationUserPassword | quote }}
+{{- else }}
+  valueFrom:
+    secretKeyRef:
+      name: {{ .Values.global.secrets.secretName | quote }}
+      value: {{ default "replicationUserPassword" .Values.global.secrets.customReplicationUserSecretKey }}
+{{- end }}
+- name: POSTGRES_DB
+  value: {{ include "default.databaseName" . }}
+- name: POSTGRES_USER
+  value: {{ include "default.databaseUser" . }}
+{{- end }}
+
+
+{{/*
 Expand the name of the chart.
 */}}
 {{- define "metaflow.name" -}}
 {{- default .Chart.Name .Values.nameOverride | trunc 63 | trimSuffix "-" }}
 {{- end }}
-
-{{/*
-Kubegres
-*/}}
-{{- define "kubegres.name" -}}
-{{- default .Chart.Name .Values.nameOverride | trunc 63 | trimSuffix "-" }}
-{{- end }}
-
-{{- define "kubegress.dbEnvVars" -}}
-- name: POSTGRES_PASSWORD
-{{- if .Values.kubegres.secrets.superUserPassword }}
-  value: {{ .Values.kubegres.secrets.superUserPassword | quote }}
-{{- else }}
-  valueFrom:
-    secretKeyRef:
-      name: {{ .Values.kubegres.secrets.secretName | quote }}
-      value: {{ default "superUserPassword" .Values.kubegres.secrets.customSuperUserSecretKey }}
-{{- end }}
-- name: POSTGRES_REPLICATION_PASSWORD
-{{- if .Values.kubegres.secrets.replicationUserPassword }}
-  value: {{ .Values.kubegres.secrets.replicationUserPassword | quote }}
-{{- else }}
-  valueFrom:
-    secretKeyRef:
-      name: {{ .Values.kubegres.secrets.secretName | quote }}
-      value: {{ default "replicationUserPassword" .Values.kubegres.secrets.customReplicationUserSecretKey }}
-{{- end }}
-{{- end }}
-
-
-
-
-
-
 
 {{/*
 Create a default fully qualified app name.
@@ -95,17 +106,49 @@ app.kubernetes.io/revision: {{ .Release.Revision | quote }}
 Selector labels
 */}}
 {{- define "metaflow.selectorLabels" -}}
-app.kubernetes.io/name: {{ include "metaflow.name" . }}
+app.kubernetes.io/name: "name"
 app.kubernetes.io/instance: {{ .Release.Name }}
+app.kubernetes.io/managed-by: {{ .Release.Service }}
 {{- end }}
+
 
 {{/*
 Create the name of the service account to use
 */}}
-{{- define "metaflow.serviceAccountName" -}}
-{{- if .Values.serviceAccount.create }}
-{{- default (include "metaflow.fullname" .) .Values.serviceAccount.name }}
+{{- define "metaflow-service.serviceAccountName" -}}
+{{- if .Values.metaflowService.serviceAccount.create }}
+{{- default (include "metaflow.fullname" .) .Values.metaflowService.serviceAccount.name }}
 {{- else }}
 {{- default "default" .Values.serviceAccount.name }}
 {{- end }}
+{{- end }}
+
+{{- define "metaflow-service.metadatadbEnvVars" -}}
+- name: MF_METADATA_DB_NAME
+  value: {{ include "default.databaseName" . }}
+- name: MF_METADATA_DB_PORT
+  value: {{ default "5432" .Values.metaflowService.metadatadb.port | quote }}
+- name: MF_METADATA_DB_PSWD
+{{- if .Values.global.secrets.superUserPassword }}
+  value: {{ .Values.global.secrets.superUserPassword | quote}}
+{{- else }}
+  valueFrom:
+    secretKeyRef:
+      name: {{ .Values.global.secrets.secretName }}
+      key: {{ default "superUserPassword" .Values.global.secrets.customSuperUserSecretKey }}
+{{- end }}
+- name: MF_METADATA_DB_USER
+  value: {{ include "default.databaseUser" . }}
+- name: MF_METADATA_DB_HOST
+  value: {{ default (include "kubegres.host" .) .Values.metaflowService.metadatadb.host}}
+{{- if .Values.metaflowService.metadatadb.schema }}
+- name: DB_SCHEMA_NAME
+  value: {{ .Values.metaflowService.metadatadb.schema | quote }}
+{{- end }}
+{{- end }}
+
+{{- define "metaflow-service.fullImage" -}}
+{{- $imageTag := default .Chart.AppVersion .Values.metaflowService.image.tag }}
+{{- $imageRepository := default "netflixoss/metaflow_metadata_service" .Values.metaflowService.image.repository }}
+{{- printf "%s:%s" $imageRepository $imageTag }}
 {{- end }}

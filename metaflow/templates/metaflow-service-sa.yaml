@@ -1,4 +1,4 @@
-{{- if .Values.serviceAccount.create -}}
+{{- if .Values.metaflowService.serviceAccount.create -}}
 apiVersion: v1
 kind: ServiceAccount
 metadata:
@@ -8,5 +8,5 @@ metadata:
     {{- include "metaflow.labels" . | nindent 4 }}
   annotations:
     {{- include "metaflow.annotations" . | nindent 4 }}
-    {{- if .Values.serviceAccount.annotations }}{{- toYaml .Values.serviceAccount.annotations | nindent 4 }}{{- end }}
+    {{- if .Values.metaflowService.serviceAccount.annotations }}{{- toYaml .Values.metaflowService.serviceAccount.annotations | nindent 4 }}{{- end }}
 {{- end }}
