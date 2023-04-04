@@ -150,7 +150,38 @@ metaflowService:
     # runAsNonRoot: true
     # runAsUser: 1000
 
-replicaCount: 1
+metaflowUi:
+  replicaCount: 1
+  autoscaling:
+    enabled: false
+    minReplicas: 1
+    maxReplicas: 100
+    targetCPUUtilizationPercentage: 80
+    # targetMemoryUtilizationPercentage: 80
+
+  podAnnotations: {}
+  imagePullSecrets:
+  podSecurityContext: {}
+    # fsGroup: 2000
+
+  image:
+    repository: zacharybloss/metaflow-ui
+    pullPolicy: IfNotPresent
+    # Overrides the image tag whose default is the chart appVersion.
+    tag: "latest"
+
+  resources:
+  envFrom:
+  nodeSelector: {}
+  tolerations: []
+  affinity: {}
+  securityContext: {}
+    # capabilities:
+    #   drop:
+    #   - ALL
+    # readOnlyRootFilesystem: true
+    # runAsNonRoot: true
+    # runAsUser: 1000
 
 
 

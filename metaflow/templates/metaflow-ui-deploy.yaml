@@ -1,0 +1,49 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "metaflow-ui.name" . }}
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "metaflow.labels" . | nindent 4 }}
+  annotations:
+    {{- include "metaflow.annotations" . | nindent 4 }}
+spec:
+  {{- if not .Values.metaflowUi.autoscaling.enabled }}
+  replicas: {{ .Values.metaflowUi.replicaCount }}
+  {{- end }}
+  selector:
+    matchLabels:
+      {{- include "metaflow-ui.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      annotations:
+        {{- toYaml .Values.metaflowUi.podAnnotations | nindent 8 }}
+      labels:
+        {{- include "metaflow-ui.selectorLabels" . | nindent 8 }}
+    spec:
+      imagePullSecrets:
+        {{- toYaml .Values.metaflowUi.imagePullSecrets | nindent 8 }}
+      securityContext:
+        {{- toYaml .Values.metaflowUi.podSecurityContext | nindent 8 }}
+      containers:
+        - name: {{ include "metaflow-ui.name" . }}
+          securityContext:
+            {{- toYaml .Values.metaflowUi.securityContext | nindent 12 }}
+          image: {{ include "metaflow-ui.fullImage" . | quote }}
+          imagePullPolicy: {{ .Values.metaflowUi.image.pullPolicy }}
+          ports:
+            - name: http
+              containerPort: 3000
+              protocol: TCP
+          resources:
+            {{- toYaml .Values.metaflowUi.resources | nindent 12 }}
+          envFrom:
+            {{- toYaml .Values.metaflowUi.envFrom | nindent 12 }}
+          env:
+            {{- include "metaflow-service.metadatadbEnvVars" . | nindent 12 }}
+      nodeSelector:
+        {{- toYaml .Values.metaflowUi.nodeSelector | nindent 8 }}
+      affinity:
+        {{- toYaml .Values.metaflowUi.affinity | nindent 8 }}
+      tolerations:
+        {{- toYaml .Values.metaflowUi.tolerations | nindent 8 }}

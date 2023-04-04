@@ -7,7 +7,7 @@ metadata:
   namespace: default
   labels:
     helm.sh/chart: metaflow-0.0.1
-    app.kubernetes.io/name: "name"
+    app.kubernetes.io/name: metaflow
     app.kubernetes.io/instance: myapp
     app.kubernetes.io/managed-by: Helm
   annotations:
@@ -24,7 +24,7 @@ metadata:
   namespace: default
   labels:
     helm.sh/chart: metaflow-0.0.1
-    app.kubernetes.io/name: "name"
+    app.kubernetes.io/name: metaflow
     app.kubernetes.io/instance: myapp
     app.kubernetes.io/managed-by: Helm
   annotations:
@@ -35,7 +35,7 @@ metadata:
 spec:
   storageClassName: standard
   capacity:
-    storage: 2Gi
+    storage: 200Mi
   accessModes:
     - ReadWriteMany
   hostPath:
@@ -55,7 +55,7 @@ metadata:
   namespace: default
   labels:
     helm.sh/chart: metaflow-0.0.1
-    app.kubernetes.io/name: "name"
+    app.kubernetes.io/name: metaflow
     app.kubernetes.io/instance: myapp
     app.kubernetes.io/managed-by: Helm
   annotations:
@@ -68,11 +68,11 @@ spec:
     - ReadWriteMany
   resources:
     requests:
-      storage: 2Gi
+      storage: 180Mi
   selector:
     matchLabels:
       helm.sh/chart: metaflow-0.0.1
-      app.kubernetes.io/name: "name"
+      app.kubernetes.io/name: metaflow
       app.kubernetes.io/instance: myapp
       app.kubernetes.io/managed-by: Helm
   storageClassName: standard
@@ -81,11 +81,11 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: metaflow-svc
+  name: metaflow-service-svc
   namespace: default
   labels:
     helm.sh/chart: metaflow-0.0.1
-    app.kubernetes.io/name: "name"
+    app.kubernetes.io/name: metaflow
     app.kubernetes.io/instance: myapp
     app.kubernetes.io/managed-by: Helm
   annotations:
@@ -94,6 +94,11 @@ metadata:
     app.kubernetes.io/managed-by: Helm
     app.kubernetes.io/revision: "1"
 spec:
+  selector:
+    app.kubernetes.io/name: metaflow
+    app.kubernetes.io/instance: myapp
+    app.kubernetes.io/managed-by: Helm
+    metaflow-package: "metaflow-service"
   type: ClusterIP
   ports:
     - name: metadata
@@ -104,20 +109,16 @@ spec:
       port: 8082
       protocol: TCP
       targetPort: 8082
-  selector:
-    app.kubernetes.io/name: "name"
-    app.kubernetes.io/instance: myapp
-    app.kubernetes.io/managed-by: Helm
 ---
 # Source: metaflow/templates/metaflow-service-deploy.yaml
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: metaflow
+  name: metaflow-service
   namespace: default
   labels:
     helm.sh/chart: metaflow-0.0.1
-    app.kubernetes.io/name: "name"
+    app.kubernetes.io/name: metaflow
     app.kubernetes.io/instance: myapp
     app.kubernetes.io/managed-by: Helm
   annotations:
@@ -126,20 +127,22 @@ metadata:
     app.kubernetes.io/managed-by: Helm
     app.kubernetes.io/revision: "1"
 spec:
-  replicas: 
+  replicas: 1
   selector:
     matchLabels:
-      app.kubernetes.io/name: "name"
+      app.kubernetes.io/name: metaflow
       app.kubernetes.io/instance: myapp
       app.kubernetes.io/managed-by: Helm
+      metaflow-package: "metaflow-service"
   template:
     metadata:
       annotations:
         {}
       labels:
-        app.kubernetes.io/name: "name"
+        app.kubernetes.io/name: metaflow
         app.kubernetes.io/instance: myapp
         app.kubernetes.io/managed-by: Helm
+        metaflow-package: "metaflow-service"
     spec:
       imagePullSecrets:
         null
@@ -210,6 +213,79 @@ spec:
       tolerations:
         []
 ---
+# Source: metaflow/templates/metaflow-ui-deploy.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: metaflow-ui
+  namespace: default
+  labels:
+    helm.sh/chart: metaflow-0.0.1
+    app.kubernetes.io/name: metaflow
+    app.kubernetes.io/instance: myapp
+    app.kubernetes.io/managed-by: Helm
+  annotations:
+    helm.sh/chart: metaflow-0.0.1
+    app.kubernetes.io/version: "0.0.1"
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/revision: "1"
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: metaflow
+      app.kubernetes.io/instance: myapp
+      app.kubernetes.io/managed-by: Helm
+      metaflow-package: "metaflow-ui"
+  template:
+    metadata:
+      annotations:
+        {}
+      labels:
+        app.kubernetes.io/name: metaflow
+        app.kubernetes.io/instance: myapp
+        app.kubernetes.io/managed-by: Helm
+        metaflow-package: "metaflow-ui"
+    spec:
+      imagePullSecrets:
+        null
+      securityContext:
+        {}
+      containers:
+        - name: metaflow-ui
+          securityContext:
+            {}
+          image: "zacharybloss/metaflow-ui:latest"
+          imagePullPolicy: IfNotPresent
+          ports:
+            - name: http
+              containerPort: 3000
+              protocol: TCP
+          resources:
+            null
+          envFrom:
+            null
+          env:
+            - name: MF_METADATA_DB_NAME
+              value: postgres
+            - name: MF_METADATA_DB_PORT
+              value: "5432"
+            - name: MF_METADATA_DB_PSWD
+              valueFrom:
+                secretKeyRef:
+                  name: kubegres-secret
+                  key: superUserPassword
+            - name: MF_METADATA_DB_USER
+              value: postgres
+            - name: MF_METADATA_DB_HOST
+              value: metaflow.default.svc.cluster.local
+      nodeSelector:
+        {}
+      affinity:
+        {}
+      tolerations:
+        []
+---
 # Source: metaflow/templates/kubegres.yaml
 apiVersion: kubegres.reactive-tech.io/v1
 kind: Kubegres
@@ -218,7 +294,7 @@ metadata:
   namespace: default
   labels:
     helm.sh/chart: metaflow-0.0.1
-    app.kubernetes.io/name: "name"
+    app.kubernetes.io/name: metaflow
     app.kubernetes.io/instance: myapp
     app.kubernetes.io/managed-by: Helm
   annotations:
@@ -232,7 +308,7 @@ spec:
   image: "postgres:14.1"
   port: 5432
   database:
-    size: 50Mi
+    size: 100Mi
     storageClassName: standard
     volumeMount: /var/lib/postgres/data
   

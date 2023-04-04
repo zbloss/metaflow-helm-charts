@@ -51,6 +51,9 @@ Kubegres
 {{ default (printf "%s-%s" .Release.Name "kubegres-pvc") .Values.global.database.backup.pvcName }}
 {{- end }}
 
+{{/*
+Metaflow Global
+*/}}
 
 {{/*
 Expand the name of the chart.
@@ -58,6 +61,7 @@ Expand the name of the chart.
 {{- define "metaflow.name" -}}
 {{- default .Chart.Name .Values.nameOverride | trunc 63 | trimSuffix "-" }}
 {{- end }}
+
 
 {{/*
 Create a default fully qualified app name.
@@ -115,11 +119,25 @@ app.kubernetes.io/revision: {{ .Release.Revision | quote }}
 Selector labels
 */}}
 {{- define "metaflow.selectorLabels" -}}
-app.kubernetes.io/name: "name"
+app.kubernetes.io/name: {{ default .Chart.Name .Values.fullnameOverride}}
 app.kubernetes.io/instance: {{ .Release.Name }}
 app.kubernetes.io/managed-by: {{ .Release.Service }}
 {{- end }}
 
+
+{{/*
+Metaflow-Service
+*/}}
+
+{{- define "metaflow-service.name" -}}
+{{- $defaultName := (printf "%s-%s" (include "metaflow.name" .) "service") }}
+{{- default $defaultName .Values.nameOverride | trunc 63 | trimSuffix "-" }}
+{{- end }}
+
+{{- define "metaflow-service.selectorLabels" -}}
+{{ include "metaflow.selectorLabels" . }}
+metaflow-package: "metaflow-service"
+{{- end }}
 
 {{/*
 Create the name of the service account to use
@@ -159,5 +177,27 @@ Create the name of the service account to use
 {{- define "metaflow-service.fullImage" -}}
 {{- $imageTag := default .Chart.AppVersion .Values.metaflowService.image.tag }}
 {{- $imageRepository := default "netflixoss/metaflow_metadata_service" .Values.metaflowService.image.repository }}
+{{- printf "%s:%s" $imageRepository $imageTag }}
+{{- end }}
+
+
+{{/*
+Metaflow-UI
+*/}}
+
+{{- define "metaflow-ui.name" -}}
+{{- $defaultName := (printf "%s-%s" (include "metaflow.name" .) "ui") }}
+{{- default $defaultName .Values.nameOverride | trunc 63 | trimSuffix "-" }}
+{{- end }}
+
+
+{{- define "metaflow-ui.selectorLabels" -}}
+{{ include "metaflow.selectorLabels" . }}
+metaflow-package: "metaflow-ui"
+{{- end }}
+
+{{- define "metaflow-ui.fullImage" -}}
+{{- $imageTag := default .Chart.AppVersion .Values.metaflowUi.image.tag }}
+{{- $imageRepository := default "zacharybloss/metaflow-ui" .Values.metaflowUi.image.repository }}
 {{- printf "%s:%s" $imageRepository $imageTag }}
 {{- end }}

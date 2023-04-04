@@ -1,7 +1,7 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ include "metaflow.name" . }}
+  name: {{ include "metaflow-service.name" . }}
   namespace: {{ .Release.Namespace }}
   labels:
     {{- include "metaflow.labels" . | nindent 4 }}
@@ -9,17 +9,17 @@ metadata:
     {{- include "metaflow.annotations" . | nindent 4 }}
 spec:
   {{- if not .Values.metaflowService.autoscaling.enabled }}
-  replicas: {{ .replicaCount }}
+  replicas: {{ .Values.metaflowService.replicaCount }}
   {{- end }}
   selector:
     matchLabels:
-      {{- include "metaflow.selectorLabels" . | nindent 6 }}
+      {{- include "metaflow-service.selectorLabels" . | nindent 6 }}
   template:
     metadata:
       annotations:
         {{- toYaml .Values.metaflowService.podAnnotations | nindent 8 }}
       labels:
-        {{- include "metaflow.selectorLabels" . | nindent 8 }}
+        {{- include "metaflow-service.selectorLabels" . | nindent 8 }}
     spec:
       imagePullSecrets:
         {{- toYaml .Values.metaflowService.imagePullSecrets | nindent 8 }}

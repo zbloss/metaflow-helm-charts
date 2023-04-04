@@ -1,13 +1,15 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: {{ include "metaflow.name" . }}-svc
+  name: {{ include "metaflow-service.name" . }}-svc
   namespace: {{ .Release.Namespace }}
   labels:
     {{- include "metaflow.labels" . | nindent 4 }}
   annotations:
     {{- include "metaflow.annotations" . | nindent 4 }}
 spec:
+  selector:
+    {{- include "metaflow-service.selectorLabels" . | nindent 4 }}
   type: {{ .Values.metaflowService.service.type }}
   ports:
     - name: metadata
@@ -18,5 +20,3 @@ spec:
       port: 8082
       protocol: TCP
       targetPort: 8082
-  selector:
-    {{- include "metaflow.selectorLabels" . | nindent 4 }}
