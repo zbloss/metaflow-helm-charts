@@ -1,73 +1,98 @@
 global:
   secrets:
+    # Name of a Kubernetes Secret object that contains
+    # either `superUserPassword` & `replicationUserPassword`
+    # or `customSuperUserSecretKey` &
+    # `customReplicationUserSecretKey` as keys.
     secretName: kubegres-secret
-    superUserPassword:
-    replicationUserPassword:
     customSuperUserSecretKey:
     customReplicationUserSecretKey:
 
+    # Set these two values if you do not want to create a 
+    # Kubernetes Secret object and instead prefer to store
+    # the secret values directly here.
+    superUserPassword:
+    replicationUserPassword:
+
   database:
-    defaultDatabaseName:
-    defaultDatabaseUser:
 
-# Database block for configuring the kubegres CRD
-kubegres:
-  name:
+    # Custom Name for the Kubegres CRD objectf
+    kubegresName: 
 
-  # The total number of replicas you want, the first 
-  # replica will be a primary and the rest will be 
-  # secondary.
-  replicas: 3
+    # Name of the default database to create or use.
+    defaultDatabaseName: "postgres"
 
-  # Postgres-compatible image you want to deploy.
-  image: 
-    repository: postgres
-    tag: "14.1"
+    # Name of the default user to create or use.
+    defaultDatabaseUser: "postgres"
 
-  # Port to make the Databases available on.
-  port: 5432
+    # The total number of replicas you want, the first 
+    # replica will be a primary and the rest will be 
+    # secondary.
+    replicas: 3
 
-  # Size to make each database.
-  size: 50Mi
+    # Postgres-compatible image you want to deploy.
+    image: 
+      repository: postgres
+      tag: "14.1"
 
-  # Name of the StorageClass object you want to use.
-  storageClassName: standard
+    # Port to make the Databases available on.
+    port: 5432
 
-  # Where to mount the persistent volumes
-  volumeMount: /var/lib/postgres/data
+    # Size to make each database.
+    size: 100Mi
 
-  # If true the primary and replica pods will not attempt 
-  # to failover and fix themselves. 
-  failoverEnabled: true
+    # Name of the StorageClass object you want to use.
+    storageClassName: standard
 
-  # The name of a replica pod you would like to promote as
-  # the primary.
-  promotePodToPrimary: ""
+    # Where to mount the persistent volumes
+    volumeMount: /var/lib/postgres/data
 
-  # The name of a configMap you want to use to define
-  # defaults for your postgres databases. 
-  # See Kubegres Docs for information on how to implement
-  # custom init and backup scripts: 
-  # https://www.kubegres.io/doc/override-default-configs.html
-  customConfigMap: ""
+    # If true the primary and replica pods will not attempt 
+    # to failover and fix themselves. 
+    failoverEnabled: true
 
-  # Backup settings
-  backup:
-    # true if you want to enable backups to a persistent volume
-    # claim
-    enabled: true
+    # The name of a replica pod you would like to promote as
+    # the primary.
+    promotePodToPrimary: ""
 
-    # cron schedule to backup on.
-    schedule: "0 0 1 */1 *"
+    # The name of a configMap you want to use to define
+    # defaults for your postgres databases. 
+    # See Kubegres Docs for information on how to implement
+    # custom init and backup scripts: 
+    # https://www.kubegres.io/doc/override-default-configs.html
+    customConfigMap: ""
+    imagePullSecrets:
 
-    # Where on the backup PVC you want to store the backup.
-    backupVolumeMount: "/var/lib/backup"
-    
-  # Any custom environmentVariables you want injected into 
-  # your db containers.
-  # environmentVariables:
-  #   - name: me
-  #     value: you
+    # Backup settings
+    backup:
+      # true if you want to enable backups to a persistent volume
+      # claim
+      enabled: true
+
+      # Size of the storage volume for the PersistentVolume.
+      pvStorageSize: 200Mi
+
+      # Amount of storage to claim from the PersistentVolume.
+      pvcStorageClaimSize: 180Mi
+
+      # Provide a custom name for the PersistentVolume, otherwise 
+      # one will be generated for you.
+      pvName: 
+      # Provide a custom name for the PersistentVolumeClaim, 
+      # otherwise one will be generated for you.
+      pvcName: 
+
+      # cron schedule to backup on.
+      schedule: "0 0 1 */1 *"
+
+      # Where on the backup PVC you want to store the backup.
+      backupVolumeMount: "/var/lib/backup"
+      
+    # Any custom environmentVariables you want injected into 
+    # your db containers.
+    # environmentVariables:
+    #   - name: me
+    #     value: you
 
 metaflowService:
   metadatadb:

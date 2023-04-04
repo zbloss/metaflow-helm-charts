@@ -9,33 +9,35 @@ metadata:
     {{- include "metaflow.annotations" . | nindent 4 }}
   
 spec:
-  replicas: {{ .Values.kubegres.replicas }}
-  image: "{{ .Values.kubegres.image.repository }}:{{ .Values.kubegres.image.tag }}"
-  port: {{ .Values.kubegres.port }}
+  replicas: {{ .Values.global.database.replicas }}
+  image: "{{ .Values.global.database.image.repository }}:{{ .Values.global.database.image.tag }}"
+  port: {{ .Values.global.database.port }}
 
-  {{- if .Values.kubegres.imagePullSecrets }}
+  {{- if .Values.global.database.imagePullSecrets }}
   imagePullSecrets:
-    {{- range $v := .Values.kubegres.imagePullSecrets }}
+    {{- range $v := .Values.global.database.imagePullSecrets }}
     - name: {{ $v.name }}
     {{- end }}
   {{- end }}
   database:
-    size: {{ .Values.kubegres.size }}
-    {{ if .Values.kubegres.storageClassName }}storageClassName: {{ .Values.kubegres.storageClassName }}{{- end }}
-    {{ if .Values.kubegres.volumeMount }}volumeMount: {{ .Values.kubegres.volumeMount }}{{- end }}
-  {{ if .Values.kubegres.customConfigMap }}customConfig: {{ .Values.kubegres.customConfigMap }}{{- end }}
+    size: {{ .Values.global.database.size }}
+    {{ if .Values.global.database.storageClassName }}storageClassName: {{ .Values.global.database.storageClassName }}{{- end }}
+    {{ if .Values.global.database.volumeMount }}volumeMount: {{ .Values.global.database.volumeMount }}{{- end }}
+  {{ if .Values.global.database.customConfigMap }}customConfig: {{ .Values.global.database.customConfigMap }}{{- end }}
   failover:
-    isDisabled: {{ not .Values.kubegres.failoverEnabled }}
-    {{ if .Values.kubegres.promotePodToPrimary }}promotePod: {{ .Values.kubegres.promotePodToPrimary }}{{- end}}
+    isDisabled: {{ not .Values.global.database.failoverEnabled }}
+    {{ if .Values.global.database.promotePodToPrimary }}promotePod: {{ .Values.global.database.promotePodToPrimary }}{{- end}}
     
-  {{- if .Values.kubegres.backup.enabled }}
+  {{- if .Values.global.database.backup.enabled }}
   backup:
-    schedule: {{ .Values.kubegres.backup.schedule }}
-    volumeMount: {{ .Values.kubegres.backup.backupVolumeMount }}
+    pvcName: {{ include "kubegres.pvcName" . }}
+    schedule: {{ .Values.global.database.backup.schedule }}
+    volumeMount: {{ .Values.global.database.backup.backupVolumeMount }}
+
   {{- end }}
   env:
     {{- include "kubegres.dbEnvVars"  . | nindent 4 }}
-  {{- if .Values.kubegres.environmentVariables }}
+  {{- if .Values.global.database.environmentVariables }}
   {{- range $v := .environmentVariables }}
     - name: {{ $v.name }}
       value: {{ $v.value | quote }}

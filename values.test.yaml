@@ -4,5 +4,3 @@ global:
 
 kubegres:
   replicas: 2
-  backup:
-    enabled: false

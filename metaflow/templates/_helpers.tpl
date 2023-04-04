@@ -2,7 +2,7 @@
 Kubegres
 */}}
 {{- define "kubegres.name" -}}
-{{- default .Chart.Name .Values.kubegres.name | trunc 63 | trimSuffix "-" }}
+{{- default .Chart.Name .Values.global.database.kubegresName | trunc 63 | trimSuffix "-" }}
 {{- end }}
 
 {{- define "default.databaseName" -}}
@@ -40,6 +40,15 @@ Kubegres
   value: {{ include "default.databaseName" . }}
 - name: POSTGRES_USER
   value: {{ include "default.databaseUser" . }}
+{{- end }}
+
+{{- define "kubegres.pvName" -}}
+{{ default (printf "%s-%s" .Release.Name "kubegres-pv") .Values.global.database.backup.pvName }}
+{{- end }}
+
+
+{{- define "kubegres.pvcName" -}}
+{{ default (printf "%s-%s" .Release.Name "kubegres-pvc") .Values.global.database.backup.pvcName }}
 {{- end }}
 
 

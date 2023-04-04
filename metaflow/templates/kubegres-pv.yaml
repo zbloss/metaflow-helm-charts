@@ -1,0 +1,25 @@
+{{- if .Values.global.database.backup }}
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: {{ include "kubegres.pvName" . }} 
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "metaflow.labels" . | nindent 4 }}
+  annotations:
+    {{- include "metaflow.annotations" . | nindent 4 }}
+spec:
+  storageClassName: {{ .Values.global.database.storageClassName }}
+  capacity:
+    storage: {{ .Values.global.database.backup.pvStorageSize }}
+  accessModes:
+    - ReadWriteMany
+  hostPath:
+    path: {{ .Values.global.database.backup.backupVolumeMount }}
+  claimRef:
+    apiVersion: v1
+    kind: PersistentVolumeClaim
+    name: {{ include "kubegres.pvcName" . }}
+    namespace: {{ .Release.Namespace }}
+  persistentVolumeReclaimPolicy: Delete
+{{- end}}
