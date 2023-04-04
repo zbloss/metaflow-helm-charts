@@ -25,7 +25,7 @@ Kubegres
   valueFrom:
     secretKeyRef:
       name: {{ .Values.global.secrets.secretName | quote }}
-      value: {{ default "superUserPassword" .Values.global.secrets.customSuperUserSecretKey }}
+      key: {{ default "superUserPassword" .Values.global.secrets.customSuperUserSecretKey }}
 {{- end }}
 - name: POSTGRES_REPLICATION_PASSWORD
 {{- if .Values.global.secrets.replicationUserPassword }}
@@ -34,7 +34,7 @@ Kubegres
   valueFrom:
     secretKeyRef:
       name: {{ .Values.global.secrets.secretName | quote }}
-      value: {{ default "replicationUserPassword" .Values.global.secrets.customReplicationUserSecretKey }}
+      key: {{ default "replicationUserPassword" .Values.global.secrets.customReplicationUserSecretKey }}
 {{- end }}
 - name: POSTGRES_DB
   value: {{ include "default.databaseName" . }}
