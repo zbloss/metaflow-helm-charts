@@ -21,6 +21,7 @@ spec:
       labels:
         {{- include "metaflow-service.selectorLabels" . | nindent 8 }}
     spec:
+      serviceAccountName: {{ include "metaflow-service.serviceAccountName" . }}
       imagePullSecrets:
         {{- toYaml .Values.metaflowService.imagePullSecrets | nindent 8 }}
       securityContext:
@@ -29,12 +30,7 @@ spec:
       initContainers:
         - name: db-migrations
           image: {{ include "metaflow-service.fullImage" . | quote }}
-          command:
-          - "/opt/latest/bin/python3"
-          - "/root/run_goose.py"
-          {{- if .Values.metaflowService.databaseMigrations.onlyIfDbEmpty }}
-          - "--only-if-empty-db"
-          {{- end }}
+          command: {{ include "metaflow-service.initContainerCommands" . | nindent 10 }}
           env:
             {{- include "metaflow-service.metadatadbEnvVars" . | nindent 12 }}
       {{- end }}
@@ -43,19 +39,22 @@ spec:
           securityContext:
             {{- toYaml .Values.metaflowService.securityContext | nindent 12 }}
           image: {{ include "metaflow-service.fullImage" . | quote }}
-          command: ["/opt/latest/bin/python3", "-m", "services.metadata_service.server" ]
+          command: 
+            - "/opt/latest/bin/python3"
+            - "-m"
+            - "services.metadata_service.server"
           imagePullPolicy: {{ .Values.metaflowService.image.pullPolicy }}
           ports:
             - name: http
-              containerPort: 8080
+              containerPort: {{ .Values.metaflowService.service.port }}
               protocol: TCP
           livenessProbe:
             httpGet:
-              path: /ping
+              path: {{ .Values.metaflowService.livenessProbeEndpoint }}
               port: http
           readinessProbe:
             httpGet:
-              path: /ping
+              path: {{ .Values.metaflowService.readinessProbeEndpoint }}
               port: http
           resources:
             {{- toYaml .Values.metaflowService.resources | nindent 12 }}

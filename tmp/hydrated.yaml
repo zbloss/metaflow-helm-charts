@@ -3,7 +3,7 @@
 apiVersion: v1
 kind: ServiceAccount
 metadata:
-  name: myapp-metaflow
+  name: metaflow-service-sa
   namespace: default
   labels:
     helm.sh/chart: metaflow-0.0.1
@@ -144,6 +144,7 @@ spec:
         app.kubernetes.io/managed-by: Helm
         metaflow-package: "metaflow-service"
     spec:
+      serviceAccountName: metaflow-service-sa
       imagePullSecrets:
         null
       securityContext:
@@ -151,7 +152,7 @@ spec:
       initContainers:
         - name: db-migrations
           image: "netflixoss/metaflow_metadata_service:latest"
-          command:
+          command: 
           - "/opt/latest/bin/python3"
           - "/root/run_goose.py"
           - "--only-if-empty-db"
@@ -174,7 +175,10 @@ spec:
           securityContext:
             {}
           image: "netflixoss/metaflow_metadata_service:latest"
-          command: ["/opt/latest/bin/python3", "-m", "services.metadata_service.server" ]
+          command: 
+            - "/opt/latest/bin/python3"
+            - "-m"
+            - "services.metadata_service.server"
           imagePullPolicy: IfNotPresent
           ports:
             - name: http
@@ -266,19 +270,8 @@ spec:
           envFrom:
             null
           env:
-            - name: MF_METADATA_DB_NAME
-              value: postgres
-            - name: MF_METADATA_DB_PORT
-              value: "5432"
-            - name: MF_METADATA_DB_PSWD
-              valueFrom:
-                secretKeyRef:
-                  name: kubegres-secret
-                  key: superUserPassword
-            - name: MF_METADATA_DB_USER
-              value: postgres
-            - name: MF_METADATA_DB_HOST
-              value: metaflow.default.svc.cluster.local
+            - name: METAFLOW_SERVICE
+              value: "tmp"
       nodeSelector:
         {}
       affinity:

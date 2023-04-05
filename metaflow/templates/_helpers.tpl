@@ -144,9 +144,10 @@ Create the name of the service account to use
 */}}
 {{- define "metaflow-service.serviceAccountName" -}}
 {{- if .Values.metaflowService.serviceAccount.create }}
-{{- default (include "metaflow.fullname" .) .Values.metaflowService.serviceAccount.name }}
+{{- $metaflowServiceName := default (include "metaflow-service.name" .) .Values.metaflowService.serviceAccount.name }}
+{{- printf "%s-%s" $metaflowServiceName "sa" | trunc 63 | trimSuffix "-" }}
 {{- else }}
-{{- default "default" .Values.serviceAccount.name }}
+{{- default "default-sa" .Values.serviceAccount.name }}
 {{- end }}
 {{- end }}
 
@@ -180,6 +181,19 @@ Create the name of the service account to use
 {{- printf "%s:%s" $imageRepository $imageTag }}
 {{- end }}
 
+{{- define "metaflow-service.initContainerCommands" -}}
+- "/opt/latest/bin/python3"
+- "/root/run_goose.py"
+{{- if .Values.metaflowService.databaseMigrations.onlyIfDbEmpty }}
+- "--only-if-empty-db"
+{{- end }}
+{{- end }}
+
+{{- define "metaflow-service.containerCommands" -}}
+{{ $defaultCommands := toYaml (list "/opt/latest/bin/python3" "-m" "services.metadata_service.server") }}
+{{ $command := default $defaultCommands .Values.metaflowService.containerCommands }}
+{{- toYaml $command | trim | nindent 10 -}}
+{{- end }}
 
 {{/*
 Metaflow-UI

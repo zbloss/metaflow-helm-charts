@@ -149,6 +149,8 @@ metaflowService:
     # readOnlyRootFilesystem: true
     # runAsNonRoot: true
     # runAsUser: 1000
+  livenessProbeEndpoint: "/ping"
+  readinessProbeEndpoint: "/ping"
 
 metaflowUi:
   replicaCount: 1
