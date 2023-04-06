@@ -1,0 +1,18 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "metaflow-ui.serviceName" . }}
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "metaflow.labels" . | nindent 4 }}
+  annotations:
+    {{- include "metaflow.annotations" . | nindent 4 }}
+spec:
+  selector:
+    {{- include "metaflow-ui.selectorLabels" . | nindent 4 }}
+  type: {{ .Values.metaflowUi.service.type }}
+  ports:
+    - name: ui
+      port: {{ .Values.metaflowUi.service.port }}
+      protocol: TCP
+      targetPort: {{ .Values.metaflowUi.service.port }}

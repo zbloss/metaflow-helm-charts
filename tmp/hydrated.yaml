@@ -110,6 +110,35 @@ spec:
       protocol: TCP
       targetPort: 8082
 ---
+# Source: metaflow/templates/metaflow-ui-svc.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: metaflow-ui-svc
+  namespace: default
+  labels:
+    helm.sh/chart: metaflow-0.0.1
+    app.kubernetes.io/name: metaflow
+    app.kubernetes.io/instance: myapp
+    app.kubernetes.io/managed-by: Helm
+  annotations:
+    helm.sh/chart: metaflow-0.0.1
+    app.kubernetes.io/version: "0.0.1"
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/revision: "1"
+spec:
+  selector:
+    app.kubernetes.io/name: metaflow
+    app.kubernetes.io/instance: myapp
+    app.kubernetes.io/managed-by: Helm
+    metaflow-package: "metaflow-ui"
+  type: ClusterIP
+  ports:
+    - name: ui
+      port: 3000
+      protocol: TCP
+      targetPort: 3000
+---
 # Source: metaflow/templates/metaflow-service-deploy.yaml
 apiVersion: apps/v1
 kind: Deployment
@@ -271,7 +300,7 @@ spec:
             null
           env:
             - name: METAFLOW_SERVICE
-              value: "tmp"
+              value: http://metaflow-service-svc.default.svc.cluster.local:8080
       nodeSelector:
         {}
       affinity:

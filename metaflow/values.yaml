@@ -172,6 +172,11 @@ metaflowUi:
     # Overrides the image tag whose default is the chart appVersion.
     tag: "latest"
 
+  service:
+    type: ClusterIP
+    port: 3000
+    annotations: {}
+
   resources:
   envFrom:
   nodeSelector: {}

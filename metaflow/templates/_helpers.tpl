@@ -134,9 +134,18 @@ Metaflow-Service
 {{- default $defaultName .Values.nameOverride | trunc 63 | trimSuffix "-" }}
 {{- end }}
 
+{{- define "metaflow-service.serviceName" -}}
+{{- $defaultName := (printf "%s-%s" (include "metaflow-service.name" .) "svc") }}
+{{- default $defaultName .Values.nameOverride | trunc 63 | trimSuffix "-" }}
+{{- end }}
+
 {{- define "metaflow-service.selectorLabels" -}}
 {{ include "metaflow.selectorLabels" . }}
 metaflow-package: "metaflow-service"
+{{- end }}
+
+{{- define "metaflow-service.hostAndPort" -}}
+{{- printf "http://%s.%s.svc.cluster.local:%s" (include "metaflow-service.serviceName" .) .Release.Namespace (toString .Values.metaflowService.service.port) }}
 {{- end }}
 
 {{/*
@@ -214,4 +223,9 @@ metaflow-package: "metaflow-ui"
 {{- $imageTag := default .Chart.AppVersion .Values.metaflowUi.image.tag }}
 {{- $imageRepository := default "zacharybloss/metaflow-ui" .Values.metaflowUi.image.repository }}
 {{- printf "%s:%s" $imageRepository $imageTag }}
+{{- end }}
+
+{{- define "metaflow-ui.serviceName" -}}
+{{- $defaultName := (printf "%s-%s" (include "metaflow-ui.name" .) "svc") }}
+{{- default $defaultName .Values.nameOverride | trunc 63 | trimSuffix "-" }}
 {{- end }}

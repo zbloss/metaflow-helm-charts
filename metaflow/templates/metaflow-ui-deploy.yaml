@@ -33,14 +33,15 @@ spec:
           imagePullPolicy: {{ .Values.metaflowUi.image.pullPolicy }}
           ports:
             - name: http
-              containerPort: 3000
+              containerPort: {{ .Values.metaflowUi.service.port }}
               protocol: TCP
           resources:
             {{- toYaml .Values.metaflowUi.resources | nindent 12 }}
           envFrom:
             {{- toYaml .Values.metaflowUi.envFrom | nindent 12 }}
           env:
-            {{- include "metaflow-service.metadatadbEnvVars" . | nindent 12 }}
+            - name: METAFLOW_SERVICE
+              value: {{ include "metaflow-service.hostAndPort" . }}
       nodeSelector:
         {{- toYaml .Values.metaflowUi.nodeSelector | nindent 8 }}
       affinity:
