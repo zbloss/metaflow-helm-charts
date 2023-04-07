@@ -12,11 +12,11 @@ spec:
     {{- include "metaflow-service.selectorLabels" . | nindent 4 }}
   type: {{ .Values.metaflowService.service.type }}
   ports:
-    - name: metadata
+    - name: http # metadata
       port: {{ .Values.metaflowService.service.port }}
       protocol: TCP
       targetPort: 8080
-    - name: upgrades
-      port: 8082
-      protocol: TCP
-      targetPort: 8082
+    # - name: upgrades
+    #   port: 8082
+    #   protocol: TCP
+    #   targetPort: 8082

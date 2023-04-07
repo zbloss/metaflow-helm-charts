@@ -12,7 +12,7 @@ spec:
     {{- include "metaflow-ui.selectorLabels" . | nindent 4 }}
   type: {{ .Values.metaflowUi.service.type }}
   ports:
-    - name: ui
+    - name: http # ui
       port: {{ .Values.metaflowUi.service.port }}
       protocol: TCP
       targetPort: {{ .Values.metaflowUi.service.port }}

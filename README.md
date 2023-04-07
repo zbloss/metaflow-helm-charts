@@ -57,3 +57,9 @@ global:
   secrets:
     secretName: my-cool-secret
 ```
+
+#### Istio
+
+using istio for routing and ingress. 
+
+Follow guide https://istio.io/latest/docs/setup/getting-started/
