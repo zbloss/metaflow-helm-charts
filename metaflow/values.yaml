@@ -1,4 +1,8 @@
 global:
+
+  # If you want to disable Istio, set this to false.
+  enableIstio: true
+  
   secrets:
     # Name of a Kubernetes Secret object that contains
     # either `superUserPassword` & `replicationUserPassword`

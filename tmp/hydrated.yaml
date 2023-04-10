@@ -101,14 +101,14 @@ spec:
     metaflow-package: "metaflow-service"
   type: ClusterIP
   ports:
-    - name: metadata
+    - name: http # metadata
       port: 8080
       protocol: TCP
       targetPort: 8080
-    - name: upgrades
-      port: 8082
-      protocol: TCP
-      targetPort: 8082
+    # - name: upgrades
+    #   port: 8082
+    #   protocol: TCP
+    #   targetPort: 8082
 ---
 # Source: metaflow/templates/metaflow-ui-svc.yaml
 apiVersion: v1
@@ -134,7 +134,7 @@ spec:
     metaflow-package: "metaflow-ui"
   type: ClusterIP
   ports:
-    - name: ui
+    - name: http # ui
       port: 3000
       protocol: TCP
       targetPort: 3000
