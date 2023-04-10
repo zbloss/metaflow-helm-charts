@@ -71,3 +71,5 @@ Installing [Istio via Helm](https://istio.io/latest/docs/setup/install/helm/).
 4. Install an `Istio Ingress Gateway`
   - `kubectl create namespace istio-ingress`
   - `helm install istio-ingress istio/gateway -n istio-ingress --wait`
+5. Label your namespace as `istion-injection=enabled`.
+  - `kubectl label namespace default istio-injection=enabled`
