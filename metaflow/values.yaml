@@ -1,0 +1,249 @@
+global:
+
+  # If you want to disable Istio, set this to false.
+  enableIstio: true
+  
+  secrets:
+    # Name of a Kubernetes Secret object that contains
+    # either `superUserPassword` & `replicationUserPassword`
+    # or `customSuperUserSecretKey` &
+    # `customReplicationUserSecretKey` as keys.
+    secretName: kubegres-secret
+    customSuperUserSecretKey:
+    customReplicationUserSecretKey:
+
+    # Set these two values if you do not want to create a 
+    # Kubernetes Secret object and instead prefer to store
+    # the secret values directly here.
+    superUserPassword:
+    replicationUserPassword:
+
+  database:
+
+    # Custom Name for the Kubegres CRD objectf
+    kubegresName: 
+
+    # Name of the default database to create or use.
+    defaultDatabaseName: "postgres"
+
+    # Name of the default user to create or use.
+    defaultDatabaseUser: "postgres"
+
+    # The total number of replicas you want, the first 
+    # replica will be a primary and the rest will be 
+    # secondary.
+    replicas: 3
+
+    # Postgres-compatible image you want to deploy.
+    image: 
+      repository: postgres
+      tag: "14.1"
+
+    # Port to make the Databases available on.
+    port: 5432
+
+    # Size to make each database.
+    size: 100Mi
+
+    # Name of the StorageClass object you want to use.
+    storageClassName: standard
+
+    # Where to mount the persistent volumes
+    volumeMount: /var/lib/postgres/data
+
+    # If true the primary and replica pods will not attempt 
+    # to failover and fix themselves. 
+    failoverEnabled: true
+
+    # The name of a replica pod you would like to promote as
+    # the primary.
+    promotePodToPrimary: ""
+
+    # The name of a configMap you want to use to define
+    # defaults for your postgres databases. 
+    # See Kubegres Docs for information on how to implement
+    # custom init and backup scripts: 
+    # https://www.kubegres.io/doc/override-default-configs.html
+    customConfigMap: ""
+    imagePullSecrets:
+
+    # Backup settings
+    backup:
+      # true if you want to enable backups to a persistent volume
+      # claim
+      enabled: true
+
+      # Size of the storage volume for the PersistentVolume.
+      pvStorageSize: 200Mi
+
+      # Amount of storage to claim from the PersistentVolume.
+      pvcStorageClaimSize: 180Mi
+
+      # Provide a custom name for the PersistentVolume, otherwise 
+      # one will be generated for you.
+      pvName: 
+      # Provide a custom name for the PersistentVolumeClaim, 
+      # otherwise one will be generated for you.
+      pvcName: 
+
+      # cron schedule to backup on.
+      schedule: "0 0 1 */1 *"
+
+      # Where on the backup PVC you want to store the backup.
+      backupVolumeMount: "/var/lib/backup"
+      
+    # Any custom environmentVariables you want injected into 
+    # your db containers.
+    # environmentVariables:
+    #   - name: me
+    #     value: you
+
+metaflowService:
+  metadatadb:
+    host:
+    user:
+    name:
+    password:
+    port: 5432
+    schema: 
+
+  databaseMigrations:
+    onlyIfDbEmpty: true
+    runOnStart: true
+
+  service:
+    type: ClusterIP
+    port: 8080
+    annotations: {}
+
+  serviceAccount:
+    create: true
+    name: 
+    annotations: 
+
+  replicaCount: 1
+
+  autoscaling:
+    enabled: false
+    minReplicas: 1
+    maxReplicas: 100
+    targetCPUUtilizationPercentage: 80
+    # targetMemoryUtilizationPercentage: 80
+
+  podAnnotations: {}
+  imagePullSecrets:
+  podSecurityContext: {}
+    # fsGroup: 2000
+
+  image:
+    repository: netflixoss/metaflow_metadata_service
+    pullPolicy: IfNotPresent
+    # Overrides the image tag whose default is the chart appVersion.
+    tag: "latest"
+
+  resources:
+  envFrom:
+  nodeSelector: {}
+  tolerations: []
+  affinity: {}
+  securityContext: {}
+    # capabilities:
+    #   drop:
+    #   - ALL
+    # readOnlyRootFilesystem: true
+    # runAsNonRoot: true
+    # runAsUser: 1000
+  livenessProbeEndpoint: "/ping"
+  readinessProbeEndpoint: "/ping"
+
+metaflowUi:
+  replicaCount: 1
+  autoscaling:
+    enabled: false
+    minReplicas: 1
+    maxReplicas: 100
+    targetCPUUtilizationPercentage: 80
+    # targetMemoryUtilizationPercentage: 80
+
+  podAnnotations: {}
+  imagePullSecrets:
+  podSecurityContext: {}
+    # fsGroup: 2000
+
+  image:
+    repository: zacharybloss/metaflow-ui
+    pullPolicy: IfNotPresent
+    # Overrides the image tag whose default is the chart appVersion.
+    tag: "latest"
+
+  service:
+    type: ClusterIP
+    port: 3000
+    annotations: {}
+
+  resources:
+  envFrom:
+  nodeSelector: {}
+  tolerations: []
+  affinity: {}
+  securityContext: {}
+    # capabilities:
+    #   drop:
+    #   - ALL
+    # readOnlyRootFilesystem: true
+    # runAsNonRoot: true
+    # runAsUser: 1000
+
+
+
+# Secret that contains credentials needed to auth
+# into your private image registry.
+imagePullSecrets: []
+
+nameOverride: ""
+fullnameOverride: ""
+
+serviceAccount:
+  # Specifies whether a service account should be created
+  create: true
+  # Annotations to add to the service account
+  annotations: {}
+  # The name of the service account to use.
+  # If not set and create is true, a name is generated using the fullname template
+  name: ""
+
+
+service:
+  type: ClusterIP
+  port: 80
+
+ingress:
+  enabled: false
+  className: ""
+  annotations: {}
+    # kubernetes.io/ingress.class: nginx
+    # kubernetes.io/tls-acme: "true"
+  hosts:
+    - host: chart-example.local
+      paths:
+        - path: /
+          pathType: ImplementationSpecific
+  tls: []
+  #  - secretName: chart-example-tls
+  #    hosts:
+  #      - chart-example.local
+
+resources: {}
+  # We usually recommend not to specify default resources and to leave this as a conscious
+  # choice for the user. This also increases chances charts run on environments with little
+  # resources, such as Minikube. If you do want to specify resources, uncomment the following
+  # lines, adjust them as necessary, and remove the curly braces after 'resources:'.
+  # limits:
+  #   cpu: 100m
+  #   memory: 128Mi
+  # requests:
+  #   cpu: 100m
+  #   memory: 128Mi
+
+
+

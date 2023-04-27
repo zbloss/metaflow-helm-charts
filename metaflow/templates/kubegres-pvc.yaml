@@ -1,0 +1,21 @@
+{{- if .Values.global.database.backup }}
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: {{ include "kubegres.pvcName" . }}
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "metaflow.labels" . | nindent 4 }}
+  annotations:
+    {{- include "metaflow.annotations" . | nindent 4 }}
+spec:
+  accessModes:
+    - ReadWriteMany
+  resources:
+    requests:
+      storage: {{ .Values.global.database.backup.pvcStorageClaimSize }}
+  selector:
+    matchLabels:
+      {{- include "metaflow.labels" . | nindent 6 }}
+  storageClassName: {{ .Values.global.database.storageClassName }}
+{{- end}}

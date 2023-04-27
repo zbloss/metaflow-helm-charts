@@ -1,0 +1,10 @@
+apiVersion: v2
+name: metaflow
+description: Helm Chart to make deploying Metaflow on kubernetes as easy as possible.
+type: application
+version: 0.0.1
+appVersion: "0.0.1"
+maintainers:
+- name: Zach Bloss
+  email: zacharybloss@gmail.com
+  

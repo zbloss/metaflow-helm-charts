@@ -1,0 +1,6 @@
+global:
+  secrets:
+    secretName: kubegres-secret
+
+kubegres:
+  replicas: 2

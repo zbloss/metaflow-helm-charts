@@ -1,0 +1,70 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "metaflow-service.name" . }}
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "metaflow.labels" . | nindent 4 }}
+  annotations:
+    {{- include "metaflow.annotations" . | nindent 4 }}
+spec:
+  {{- if not .Values.metaflowService.autoscaling.enabled }}
+  replicas: {{ .Values.metaflowService.replicaCount }}
+  {{- end }}
+  selector:
+    matchLabels:
+      {{- include "metaflow-service.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      annotations:
+        {{- toYaml .Values.metaflowService.podAnnotations | nindent 8 }}
+      labels:
+        {{- include "metaflow-service.selectorLabels" . | nindent 8 }}
+    spec:
+      serviceAccountName: {{ include "metaflow-service.serviceAccountName" . }}
+      imagePullSecrets:
+        {{- toYaml .Values.metaflowService.imagePullSecrets | nindent 8 }}
+      securityContext:
+        {{- toYaml .Values.metaflowService.podSecurityContext | nindent 8 }}
+      {{- if .Values.metaflowService.databaseMigrations.runOnStart }}
+      initContainers:
+        - name: db-migrations
+          image: {{ include "metaflow-service.fullImage" . | quote }}
+          command: {{ include "metaflow-service.initContainerCommands" . | nindent 10 }}
+          env:
+            {{- include "metaflow-service.metadatadbEnvVars" . | nindent 12 }}
+      {{- end }}
+      containers:
+        - name: {{ $.Chart.Name }}
+          securityContext:
+            {{- toYaml .Values.metaflowService.securityContext | nindent 12 }}
+          image: {{ include "metaflow-service.fullImage" . | quote }}
+          command: 
+            - "/opt/latest/bin/python3"
+            - "-m"
+            - "services.metadata_service.server"
+          imagePullPolicy: {{ .Values.metaflowService.image.pullPolicy }}
+          ports:
+            - name: http
+              containerPort: {{ .Values.metaflowService.service.port }}
+              protocol: TCP
+          livenessProbe:
+            httpGet:
+              path: {{ .Values.metaflowService.livenessProbeEndpoint }}
+              port: http
+          readinessProbe:
+            httpGet:
+              path: {{ .Values.metaflowService.readinessProbeEndpoint }}
+              port: http
+          resources:
+            {{- toYaml .Values.metaflowService.resources | nindent 12 }}
+          envFrom:
+            {{- toYaml .Values.metaflowService.envFrom | nindent 12 }}
+          env:
+            {{- include "metaflow-service.metadatadbEnvVars" . | nindent 12 }}
+      nodeSelector:
+        {{- toYaml .Values.metaflowService.nodeSelector | nindent 8 }}
+      affinity:
+        {{- toYaml .Values.metaflowService.affinity | nindent 8 }}
+      tolerations:
+        {{- toYaml .Values.metaflowService.tolerations | nindent 8 }}
