@@ -64,12 +64,13 @@ Installing [Istio via Helm](https://istio.io/latest/docs/setup/install/helm/).
 
 1. Create `istio-system` Namespace.
   - `kubectl create namespace istio-system`
-2. Install `istio-base`.
-  - `helm install istio-base istio/base -n istio-system`
-3. Install `Istio Discovery Chart`
-  - `helm install istiod istio/istiod -n istio-system --wait`
-4. Install an `Istio Ingress Gateway`
-  - `kubectl create namespace istio-ingress`
-  - `helm install istio-ingress istio/gateway -n istio-ingress --wait`
-5. Label your namespace as `istion-injection=enabled`.
+2. Label your namespaces as `istion-injection=enabled`.
   - `kubectl label namespace default istio-injection=enabled`
+  - `kubectl label namespace istio-system istio-injection=enabled`
+3. Install `istio-base`.
+  - `helm install istio-base istio/base -n istio-system`
+4. Install `Istio Discovery Chart`
+  - `helm install istiod istio/istiod -n istio-system --wait`
+5. Install an `Istio Ingress Gateway`
+  - `kubectl create namespace istio-ingress`
+  - `helm install istio-ingress istio/gateway -n istio-system --wait`
